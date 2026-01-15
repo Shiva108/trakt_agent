@@ -1,0 +1,22 @@
+{
+    "genre_exclusions": [
+        "Horror",
+        "Musicals",
+        "Reality TV"
+    ],
+    "preferred_genres": [
+        "Sci-Fi",
+        "Thriller",
+        "Drama"
+    ],
+    "min_imdb_score": {
+        "tv_shows": 7.0,
+        "movies": 7.0
+    },
+    "preferred_min_year": 2010,
+    "title_blocklist": [
+        "The Room",
+        "Cats"
+    ],
+    "notes": "Set preferred_min_year to 0 to disable year filtering."
+}

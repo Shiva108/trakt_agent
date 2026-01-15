@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trakt_agent"
+version = "0.1.0"
+description = "AI-powered recommendation agent using Trakt.tv history"
+readme = "README.md"
+authors = [
+  { name = "Trakt Agent Contributors" },
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests",
+    "openai"
+]
+requires-python = ">=3.8"
+
+[project.scripts]
+trakt-agent = "cli:main"
+
+[tool.setuptools.packages.find]
+include = ["core*", "utils*", "scripts*"]

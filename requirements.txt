@@ -1,0 +1,7 @@
+# Core dependencies
+requests>=2.32.0
+openai>=2.15.0
+urllib3>=2.6.0
+
+# Development
+pytest>=7.0.0
