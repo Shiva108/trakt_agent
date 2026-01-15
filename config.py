@@ -19,12 +19,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger("trakt_agent")
 
+import os
+
 # ==============================================================================
 # LOCAL LLM CONFIGURATION
 # ==============================================================================
 API_BASE_URL: Final[str] = "http://127.0.0.1:1234/v1"  # Your local LLM server endpoint
 MODEL_NAME: Final[str] = "qwen/qwen3-4b-2507"  # Model identifier
-API_KEY: Final[str] = "not-needed"  # Local servers typically don't require authentication
+API_KEY: Final[str] = os.getenv("LOCAL_LLM_API_KEY", "not-needed")  # Local servers typically don't require authentication
 TEMPERATURE: Final[float] = 0.7  # Creativity level (0.1=focused, 0.9=creative)
 
 # ==============================================================================
