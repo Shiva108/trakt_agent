@@ -192,7 +192,7 @@ def fetch_candidates() -> List[Dict[str, Any]]:
         if resp.status_code == 200:
             items = resp.json()
             for item in items:
-                simkl_id = item.get("ids", {}).get("simkl")
+                simkl_id = item.get("ids", {}).get("simkl_id")
                 if not simkl_id:
                     continue
 
@@ -218,7 +218,7 @@ def fetch_candidates() -> List[Dict[str, Any]]:
         if resp.status_code == 200:
             items = resp.json()
             for item in items:
-                simkl_id = item.get("ids", {}).get("simkl")
+                simkl_id = item.get("ids", {}).get("simkl_id")
                 if not simkl_id:
                     continue
 
