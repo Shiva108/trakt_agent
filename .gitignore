@@ -48,3 +48,5 @@ dist/
 build/
 *.egg-info/
 .agent/rules/snyk_rules.md
+debug_simkl_details.py
+.gitignore

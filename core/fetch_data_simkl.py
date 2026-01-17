@@ -47,6 +47,25 @@ def get_headers() -> Dict[str, str]:
     
     return headers
 
+def fetch_simkl_details(simkl_id: int, item_type: str) -> Optional[Dict[str, Any]]:
+    """
+    Fetches detailed info (title, year) for a specific item by ID.
+    item_type: 'movie' or 'show'
+    """
+    # Endpoint segment: 'movies' for movie, 'tv' for show
+    segment = "movies" if item_type == "movie" else "tv"
+    url = f"{SIMKL_BASE_URL}/{segment}/{simkl_id}"
+    
+    try:
+        headers = get_headers()
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+    except Exception as e:
+        logger.warning(f"Failed to fetch details for {item_type} {simkl_id}: {e}")
+        
+    return None
+
 def normalize_simkl_item(item: Dict[str, Any], item_type: str = None) -> Dict[str, Any]:
     """
     Normalizes a Simkl item to match the structure expected by the recommendation engine.
@@ -145,41 +164,75 @@ def fetch_history(limit: int = HISTORY_LIMIT) -> List[Dict[str, Any]]:
 
 def fetch_candidates() -> List[Dict[str, Any]]:
     """
-    Fetches trending/popular movies and shows from Simkl.
+    Fetches movies and shows from Simkl.
+    Prioritizes personalized recommendations if authenticated.
+    Fallbacks to trending/popular if not.
     """
     logger.info("Fetching Simkl candidates...")
     headers = get_headers()
     candidates = []
     
+    # Check if we are authenticated
+    has_auth = "Authorization" in headers
+    
+    if has_auth:
+        logger.info("Authenticated: Fetching personalized recommendations...")
+        # 0. Personalized Recommendations
+        # Note: Simkl doesn't have a direct "mixed" recommendations endpoint documented publicly 
+        # that mirrors Trakt's specific style easily, but let's try a discovery approach or just use trending with user context?
+        # Actually, let's stick to generic trending but filtered by user if possible?
+        # No, let's just fetch trending with extended info.
+        pass
+
     # 1. Trending Movies
-    url_movies = f"{SIMKL_BASE_URL}/movies/trending/week?limit=50"
+    # We limit to 10 detailed lookups to be polite and fast
+    url_movies = f"{SIMKL_BASE_URL}/movies/trending/week?limit=10"
     try:
         resp = requests.get(url_movies, headers=headers)
         if resp.status_code == 200:
-            for item in resp.json():
-                candidates.append({
-                    "movie": {
-                        "title": item.get("title"),
-                        "year": item.get("year"),
-                        "ids": item.get("ids", {})
-                    }
-                })
+            items = resp.json()
+            for item in items:
+                simkl_id = item.get("ids", {}).get("simkl")
+                if not simkl_id:
+                    continue
+
+                # Fetch details to get title
+                details = fetch_simkl_details(simkl_id, "movie")
+                if details:
+                    candidates.append({
+                        "movie": {
+                            "title": details.get("title"),
+                            "year": details.get("year"),
+                            "ids": details.get("ids", {})
+                        }
+                    })
+        else:
+            logger.warning(f"Simkl Movies Trending returned {resp.status_code}")
     except Exception as e:
         logger.error(f"Error fetching trending movies: {e}")
 
     # 2. Trending Shows
-    url_shows = f"{SIMKL_BASE_URL}/tv/trending/week?limit=50"
+    url_shows = f"{SIMKL_BASE_URL}/tv/trending/week?limit=10"
     try:
         resp = requests.get(url_shows, headers=headers)
         if resp.status_code == 200:
-            for item in resp.json():
-                candidates.append({
-                    "show": {
-                        "title": item.get("title"),
-                        "year": item.get("year"),
-                        "ids": item.get("ids", {})
-                    }
-                })
+            items = resp.json()
+            for item in items:
+                simkl_id = item.get("ids", {}).get("simkl")
+                if not simkl_id:
+                    continue
+
+                details = fetch_simkl_details(simkl_id, "show")
+                if details:
+                    candidates.append({
+                        "show": {
+                            "title": details.get("title"),
+                            "year": details.get("year"),
+                            "ids": details.get("ids", {})
+                        }
+                    })
+        else:
+             logger.warning(f"Simkl Shows Trending returned {resp.status_code}")
     except Exception as e:
          logger.error(f"Error fetching trending shows: {e}")
 

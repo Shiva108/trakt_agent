@@ -35,13 +35,24 @@ TEMPERATURE: Final[float] = 0.7  # Creativity level (0.1=focused, 0.9=creative)
 TRAKT_BASE_URL: Final[str] = "https://api.trakt.tv"
 
 # ==============================================================================
+# SERVICE CONFIGURATION
+# ==============================================================================
+# Options: "trakt", "simkl"
+SERVICE_PROVIDER: Final[str] = "simkl"
+
+# ==============================================================================
 # FILE PATHS (using pathlib)
 # ==============================================================================
 BASE_DIR: Final[Path] = Path(__file__).resolve().parent
 
 DATA_DIR: Final[Path] = BASE_DIR / "data"
-HISTORY_FILE: Final[Path] = DATA_DIR / "watch_history.json"
-CANDIDATES_FILE: Final[Path] = DATA_DIR / "candidates.json"
+
+if SERVICE_PROVIDER == "simkl":
+    HISTORY_FILE: Final[Path] = DATA_DIR / "watch_history_simkl.json"
+    CANDIDATES_FILE: Final[Path] = DATA_DIR / "candidates_simkl.json"
+else:
+    HISTORY_FILE: Final[Path] = DATA_DIR / "watch_history.json"
+    CANDIDATES_FILE: Final[Path] = DATA_DIR / "candidates.json"
 
 OUTPUT_DIR: Final[Path] = BASE_DIR / "output"
 PROFILE_FILE: Final[Path] = OUTPUT_DIR / "Trakt Taste Profile.md"
