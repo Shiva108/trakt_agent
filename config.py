@@ -78,4 +78,4 @@ SIMKL_TOKEN_FILE: Final[Path] = BASE_DIR / "simkl_token.json"
 # SERVICE CONFIGURATION
 # ==============================================================================
 # Options: "trakt", "simkl"
-SERVICE_PROVIDER: Final[str] = "trakt"
+SERVICE_PROVIDER: Final[str] = "simkl"
