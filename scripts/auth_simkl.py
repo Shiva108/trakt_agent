@@ -51,7 +51,8 @@ def authenticate() -> Optional[Dict[str, Any]]:
 
     client_id = secrets["simkl_client_id"]
     client_secret = secrets["simkl_client_secret"]
-    redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+    # Using Simkl homepage as redirect URI to avoid "Connecting..." hang on OOB
+    redirect_uri = "https://simkl.com"
     
     auth_url = (
         f"https://simkl.com/oauth/authorize?"
@@ -63,7 +64,8 @@ def authenticate() -> Optional[Dict[str, Any]]:
     print("="*60)
     print(f"1. Visit this URL: {auth_url}")
     print("2. Authorize the application.")
-    print("3. Copy the code provided.")
+    print("3. You will be redirected to https://simkl.com/?code=... (or similar)")
+    print("4. Copy the 'code' value from the URL bar.")
     print("="*60 + "\n")
     
     # Try to open browser
