@@ -67,3 +67,15 @@ NUM_RECOMMENDATIONS: Final[int] = 10  # Number of recommendations to generate
 # RATE LIMITING
 # ==============================================================================
 TRAKT_API_DELAY: Final[float] = 0.1  # Seconds between API calls
+
+# ==============================================================================
+# SIMKL API CONFIGURATION
+# ==============================================================================
+SIMKL_BASE_URL: Final[str] = "https://api.simkl.com"
+SIMKL_TOKEN_FILE: Final[Path] = BASE_DIR / "simkl_token.json"
+
+# ==============================================================================
+# SERVICE CONFIGURATION
+# ==============================================================================
+# Options: "trakt", "simkl"
+SERVICE_PROVIDER: Final[str] = "trakt"

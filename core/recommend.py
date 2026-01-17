@@ -18,12 +18,28 @@ def load_json(path: Path) -> List[Dict[str, Any]]:
     with open(path, "r") as f:
         return json.load(f)
 
-def get_trakt_id(item: Dict[str, Any]) -> Optional[int]:
-    """Extracts Trakt ID from a movie or show object."""
+def get_item_id(item: Dict[str, Any]) -> Optional[str]:
+    """Extracts a unique ID (Trakt, Simkl, or IMDB) from a movie or show object."""
+    ids = {}
     if "movie" in item:
-        return item["movie"]["ids"]["trakt"]
-    if "show" in item:
-        return item["show"]["ids"]["trakt"]
+        ids = item["movie"]["ids"]
+    elif "show" in item:
+        ids = item["show"]["ids"]
+    else:
+        return None
+        
+    # Priority: Trakt > Simkl > IMDB
+    if "trakt" in ids:
+        return str(ids["trakt"])
+    if "simkl" in ids:
+        return str(ids["simkl"])
+    if "imdb" in ids:
+        return str(ids["imdb"])
+    
+    # Fallback to any key
+    if ids:
+        return str(list(ids.values())[0])
+        
     return None
 
 def get_title_year(item: Dict[str, Any]) -> str:
@@ -72,7 +88,7 @@ def filter_candidates(candidates: List[Dict[str, Any]], watched_ids: Set[int], g
     blocked_titles_lower = [t.lower() for t in title_blocklist]
     
     for item in candidates:
-        tid = get_trakt_id(item)
+        tid = get_item_id(item)
         desc = get_title_year(item)
         genres = get_genres(item)
         genres_lower = [g.lower() for g in genres]
@@ -179,7 +195,7 @@ def main(seed_items: List[str] = []) -> None:
         # Create set of watched IDs
         watched_ids = set()
         for item in history:
-            tid = get_trakt_id(item)
+            tid = get_item_id(item)
             if tid:
                 watched_ids.add(tid)
 

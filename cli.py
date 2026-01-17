@@ -6,14 +6,17 @@ from typing import List
 from pathlib import Path
 from config import (
     DATA_DIR, PROFILE_FILE, RECOMMENDATIONS_FILE,
-    HISTORY_FILE, CANDIDATES_FILE
+    HISTORY_FILE, CANDIDATES_FILE, SERVICE_PROVIDER
 )
 
 # Import from core package
 from core import fetch_data
+from core import fetch_data_simkl
 from core import recommend
 from core import profile_taste
 from core import mark_watched
+from core import mark_watched_simkl
+from scripts import auth_simkl
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -42,8 +45,11 @@ def load_items_from_file(file_path: str) -> List[str]:
 
 def handle_fetch(args):
     """Fetch watch history and candidates."""
-    logger.info("Starting data fetch...")
-    fetch_data.main()
+    logger.info(f"Starting data fetch (Provider: {SERVICE_PROVIDER})...")
+    if SERVICE_PROVIDER == "simkl":
+        fetch_data_simkl.main()
+    else:
+        fetch_data.main()
 
 def handle_profile(args):
     """Generate taste profile."""
@@ -85,7 +91,11 @@ def handle_mark(args):
     
     # Convert back to list for processing
     items_list = list(unique_items)
-    mark_watched.process_titles(items_list)
+    
+    if SERVICE_PROVIDER == "simkl":
+        mark_watched_simkl.process_titles(items_list)
+    else:
+        mark_watched.process_titles(items_list)
 
 def main():
     parser = argparse.ArgumentParser(description="Trakt Agent CLI")
@@ -109,6 +119,9 @@ def main():
     mark_parser.add_argument("items", nargs="*", help="List of titles to mark as watched")
     mark_parser.add_argument("-f", "--file", help="Path to file containing titles to mark (one per line)")
 
+    # Auth Simkl Command
+    auth_simkl_parser = subparsers.add_parser("auth-simkl", help="Authenticate with Simkl")
+
     args = parser.parse_args()
     
     setup_logging(args.verbose)
@@ -121,6 +134,8 @@ def main():
         handle_recommend(args)
     elif args.command == "mark":
         handle_mark(args)
+    elif args.command == "auth-simkl":
+        auth_simkl.authenticate()
     else:
         parser.print_help()
         sys.exit(1)
