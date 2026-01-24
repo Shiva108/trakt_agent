@@ -104,7 +104,7 @@ def configure_preferences():
     
     # Create preferences
     preferences = {
-        "preferred_genres": preferred_genres or[],
+        "preferred_genres": preferred_genres or [],
         "genre_exclusions": excluded_genres or [],
         "language_exclusions": [],
         "title_blocklist": [],
