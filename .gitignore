@@ -54,3 +54,4 @@ debug_simkl_details.py
 output/Trakt Taste Profile.json
 output/Trakt Taste Profile.json
 output/Trakt Taste Profile.json
+tests/test_setup.py
