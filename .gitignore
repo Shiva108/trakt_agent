@@ -50,3 +50,4 @@ build/
 .agent/rules/snyk_rules.md
 debug_simkl_details.py
 .gitignore
+output/Trakt Taste Profile.json

@@ -4,7 +4,10 @@
     "fantasy",
     "urban fantasy",
     "dark fantasy",
-    "superhero"
+    "superhero",
+    "hacker",
+    "hacking",
+    "cyberpunk"
   ],
   "genre_exclusions": [
     "neo-western",
