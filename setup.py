@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Trakt Agent Interactive Setup Script
-Guides users through configuration and first-time setup
+Trakt/Simkl Agent Interactive Setup Script
+Guides users through configuration and first-time setup for Trakt and/or Simkl services
 """
 
 import json
@@ -20,9 +20,29 @@ def print_step(number, text):
     print(f"\n📍 Step {number}: {text}")
     print("-" * 60)
 
+def select_services():
+    """Let user choose which services to configure"""
+    print_step(1, "Select Services to Configure")
+    
+    print("\n📺 Which service(s) would you like to use?\n")
+    print("  1. Trakt only")
+    print("  2. Simkl only")
+    print("  3. Both Trakt and Simkl\n")
+    
+    while True:
+        choice = input("Enter your choice (1-3): ").strip()
+        if choice == "1":
+            return {"trakt": True, "simkl": False}
+        elif choice == "2":
+            return {"trakt": False, "simkl": True}
+        elif choice == "3":
+            return {"trakt": True, "simkl": True}
+        else:
+            print("❌ Invalid choice. Please enter 1, 2, or 3.")
+
 def create_directories():
     """Create necessary project directories"""
-    print_step(1, "Creating Project Directories")
+    print_step(2, "Creating Project Directories")
     
     directories = ["data", "output"]
     for dir_name in directories:
@@ -31,11 +51,11 @@ def create_directories():
     
     print("\n✓ All directories created successfully")
 
-def configure_trakt_api():
+def configure_trakt_api(existing_secrets=None):
     """Guide user through Trakt API setup"""
-    print_step(2, "Trakt API Configuration")
+    print_step(3, "Trakt API Configuration")
     
-    print("\n📝 To use this agent, you need Trakt API credentials.")
+    print("\n📝 To use Trakt, you need Trakt API credentials.")
     print("   Follow these steps:\n")
     print("   1. Go to: https://trakt.tv/oauth/applications/new")
     print("   2. Create a new application with these settings:")
@@ -45,30 +65,59 @@ def configure_trakt_api():
     
     input("Press Enter when you have your credentials ready...")
     
-    client_id = input("\n🔑 Enter your Client ID: ").strip()
-    client_secret = input("🔑 Enter your Client Secret: ").strip()
+    client_id = input("\n🔑 Enter your Trakt Client ID: ").strip()
+    client_secret = input("🔑 Enter your Trakt Client Secret: ").strip()
     
     if not client_id or not client_secret:
         print("\n❌ Error: Both Client ID and Secret are required")
         sys.exit(1)
     
-    # Save to secrets.json
-    secrets = {
-        "client_id": client_id,
-        "client_secret": client_secret
-    }
+    # Merge with existing secrets if provided
+    secrets = existing_secrets or {}
+    secrets["client_id"] = client_id
+    secrets["client_secret"] = client_secret
     
-    with open("secrets.json", "w") as f:
-        json.dump(secrets, f, indent=2)
+    print("\n✅ Trakt credentials configured")
+    print("\n📝 After setup, authenticate with Trakt by running:")
+    print("   python scripts/exchange_pin.py\n")
     
-    print("\n✅ Saved credentials to secrets.json")
-    print("\n📝 Next, you need to authenticate with Trakt:")
-    print("   Run: python scripts/exchange_pin.py")
-    print("   This will guide you through OAuth authentication\n")
+    return secrets
+
+def configure_simkl_api(existing_secrets=None):
+    """Guide user through Simkl API setup"""
+    print_step(3, "Simkl API Configuration")
+    
+    print("\n📝 To use Simkl, you need Simkl API credentials.")
+    print("   Follow these steps:\n")
+    print("   1. Go to: https://simkl.com/settings/developer/new/")
+    print("   2. Create a new application with these settings:")
+    print("      - Name: 'Simkl Agent' (or your choice)")
+    print("      - Redirect URI: https://simkl.com")
+    print("   3. Copy your Client ID and Client Secret\n")
+    
+    input("Press Enter when you have your credentials ready...")
+    
+    client_id = input("\n🔑 Enter your Simkl Client ID: ").strip()
+    client_secret = input("🔑 Enter your Simkl Client Secret: ").strip()
+    
+    if not client_id or not client_secret:
+        print("\n❌ Error: Both Client ID and Secret are required")
+        sys.exit(1)
+    
+    # Merge with existing secrets if provided
+    secrets = existing_secrets or {}
+    secrets["simkl_client_id"] = client_id
+    secrets["simkl_client_secret"] = client_secret
+    
+    print("\n✅ Simkl credentials configured")
+    print("\n📝 After setup, authenticate with Simkl by running:")
+    print("   python scripts/auth_simkl.py\n")
+    
+    return secrets
 
 def configure_preferences():
     """Help user configure preferences.json"""
-    print_step(3, "Configure Your Preferences")
+    print_step(4, "Configure Your Preferences")
     
     print("\n📝 Let's set up your content preferences.\n")
     
@@ -95,8 +144,8 @@ def configure_preferences():
     min_year = int(min_year) if min_year.isdigit() else 2005
     
     print("\n⭐ Minimum IMDb score for movies?")
-    min_movie_score = input("   (default: 7.0): ").strip()
-    min_movie_score = float(min_movie_score) if min_movie_score else 7.0
+    min_movie_score = input("   (default: 7.2): ").strip()
+    min_movie_score = float(min_movie_score) if min_movie_score else 7.2
     
     print("\n⭐ Minimum IMDb score for TV shows?")
     min_tv_score = input("   (default: 6.5): ").strip()
@@ -123,12 +172,12 @@ def configure_preferences():
     print("\n✅ Saved preferences to preferences.json")
     print("   You can edit this file anytime to adjust your preferences")
 
-def validate_setup():
+def validate_setup(services):
     """Validate that all necessary files exist"""
-    print_step(4, "Validating Setup")
+    print_step(5, "Validating Setup")
     
     required_files = {
-        "secrets.json": "Trakt API credentials",
+        "secrets.json": "API credentials (Trakt and/or Simkl)",
         "preferences.json": "Your content preferences",
         "requirements.txt": "Python dependencies"
     }
@@ -149,41 +198,77 @@ def validate_setup():
     print("\n✓ All required files present")
     return True
 
-def show_next_steps():
+def show_next_steps(services):
     """Show user what to do next"""
     print_header("Setup Complete!")
     
-    print("🎉 Your Trakt Agent is ready to use!\n")
+    print("🎉 Your Agent is ready to use!\n")
     print("Next steps:\n")
-    print("  1. Authenticate with Trakt (if you haven't already):")
-    print("     python scripts/exchange_pin.py\n")
-    print("  2. Get your first recommendations:")
+    
+    step = 1
+    if services["trakt"]:
+        print(f"  {step}. Authenticate with Trakt:")
+        print("     python scripts/exchange_pin.py\n")
+        step += 1
+    
+    if services["simkl"]:
+        print(f"  {step}. Authenticate with Simkl:")
+        print("     python scripts/auth_simkl.py\n")
+        step += 1
+    
+    print(f"  {step}. Get your first recommendations:")
     print("     python cli.py recommend\n")
-    print("  3. Mark items as watched:")
+    step += 1
+    
+    print(f"  {step}. Mark items as watched:")
     print("     python cli.py mark \"Movie Title (Year)\"\n")
-    print("  4. View all commands:")
+    step += 1
+    
+    print(f"  {step}. View all commands:")
     print("     python cli.py --help\n")
+    
     print("📚 For more help, see README.md\n")
 
 def main():
     """Main setup flow"""
-    print_header("🎬 Trakt Agent Setup")
+    print_header("🎬 Trakt/Simkl Agent Setup")
     
-    print("This interactive script will help you set up the Trakt Agent.\n")
+    print("This interactive script will help you set up the Agent.\n")
     print("You'll configure:")
-    print("  • Trakt API credentials")
+    print("  • Service selection (Trakt and/or Simkl)")
+    print("  • API credentials for selected service(s)")
     print("  • Content preferences")
     print("  • Project directories\n")
     
     input("Press Enter to begin...")
     
     try:
+        # Step 1: Select services
+        services = select_services()
+        
+        # Step 2: Create directories
         create_directories()
-        configure_trakt_api()
+        
+        # Step 3: Configure API credentials
+        secrets = {}
+        
+        if services["trakt"]:
+            secrets = configure_trakt_api(secrets)
+        
+        if services["simkl"]:
+            secrets = configure_simkl_api(secrets)
+        
+        # Save all secrets to secrets.json
+        with open("secrets.json", "w") as f:
+            json.dump(secrets, f, indent=2)
+        print("\n✅ All credentials saved to secrets.json")
+        
+        # Step 4: Configure preferences
         configure_preferences()
         
-        if validate_setup():
-            show_next_steps()
+        # Step 5: Validate setup
+        if validate_setup(services):
+            show_next_steps(services)
         else:
             print("\n❌ Setup incomplete. Please address the issues above.")
             sys.exit(1)
