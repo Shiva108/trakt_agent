@@ -78,7 +78,49 @@ Before setting up, ensure you have the following:
 4. **Local LLM Server**: We recommend using [LM Studio](https://lmstudio.ai/) or [Ollama](https://ollama.com/) with a wrapper like OpenWebUI.
    - Standard configuration assumes an OpenAI-compatible server at `http://127.0.0.1:1234/v1`.
 
-## Installation
+## Quick Start
+
+Get up and running in under 5 minutes:
+
+### 1. Install
+
+```bash
+./install.sh
+```
+
+This script will:
+
+- Check for Python 3.8+ and pip
+- Create a virtual environment
+- Install all dependencies
+- Create necessary directories
+
+### 2. Setup
+
+```bash
+source venv/bin/activate  # Activate virtual environment
+python setup.py            # Interactive setup wizard
+```
+
+The setup wizard will guide you through:
+
+- Creating a Trakt API application
+- Configuring API credentials
+- Setting your content preferences
+- Authenticating with Trakt
+
+### 3. Get Recommendations
+
+```bash
+python cli.py fetch      # Fetch your watch history
+python cli.py recommend  # Generate recommendations
+```
+
+Your recommendations will be saved to `output/Trakt Recommendations.md`!
+
+---
+
+## Detailed Installation
 
 ### 1. Clone or Download
 
@@ -176,23 +218,46 @@ Influence the current batch by providing specific "seed" titles.
 
 ```bash
 python cli.py recommend "Inception" "Interstellar"
-# Or from a file
-python cli.py recommend --file my_favorites.txt
 ```
 
 **Mark Items as Watched**:
-Manually mark items as watched on Trakt without creating a full playback session (useful for cleaning up recommendations).
+Manually mark items as watched on Trakt to exclude them from future recommendations.
 
 ```bash
-python cli.py mark "The Room" "Cats (2019)"
+python cli.py mark "The Room (2003)" "Cats (2019)"
+```
+
+**Check All Commands**:
+
+```bash
+python cli.py --help
 ```
 
 ## Troubleshooting
 
+### Installation Issues
+
+- **"Python 3.8+ not found"**: Install Python from [python.org](https://python.org) and ensure it's in your PATH.
+- **"Permission denied" on install.sh**: Run `chmod +x install.sh` to make it executable.
+- **Virtual environment issues**: Try manually creating with `python3 -m venv venv`.
+
+### Configuration Issues
+
 - **"Connection Refused" (LLM)**: Ensure your local LLM server (e.g., LM Studio) is running and the server is started on port `1234`.
 - **"Model not found"**: Check that the `MODEL_NAME` in `config.py` matches the model string in your LLM server exactly.
 - **Auth Errors**: If your token expires or is invalid, delete `token.json` and run `python scripts/exchange_pin.py` again.
+
+### Recommendation Quality
+
 - **Empty Recommendations**: If `fetch` returns no candidates, try expanding your `preferences.json` (e.g., lower the year limit) or ensure you have enough history on Trakt.
+- **Too many duplicates**: Increase `HISTORY_LIMIT` in `config.py` to fetch more watch history (default: 2000).
+- **Slow generation**: The LLM generation time depends on your local hardware. Consider using a smaller model or increasing `CANDIDATE_LIMIT` in `config.py`.
+
+### Getting Help
+
+- Check existing [issues](https://github.com/yourusername/trakt-agent/issues)
+- Review the [documentation](docs/)
+- Run `python cli.py --help` for command reference
 
 ## Contributing
 
