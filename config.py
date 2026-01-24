@@ -55,7 +55,7 @@ else:
     CANDIDATES_FILE: Final[Path] = DATA_DIR / "candidates.json"
 
 OUTPUT_DIR: Final[Path] = BASE_DIR / "output"
-PROFILE_FILE: Final[Path] = OUTPUT_DIR / "Trakt Taste Profile.md"
+PROFILE_FILE: Final[Path] = OUTPUT_DIR / "Trakt Taste Profile.json"
 RECOMMENDATIONS_FILE: Final[Path] = OUTPUT_DIR / "Trakt Recommendations.md"
 
 PREFERENCES_FILE: Final[Path] = BASE_DIR / "preferences.json"

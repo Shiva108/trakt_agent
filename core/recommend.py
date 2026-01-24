@@ -130,8 +130,15 @@ def filter_candidates(candidates: List[Dict[str, Any]], watched_ids: Set[int], g
     
     return valid_candidates
 
-def generate_recommendations(profile_text: str, candidates: List[str], exclusions: List[str], preferred_genres: List[str] = [], seed_items: List[str] = []) -> str:
+def generate_recommendations(profile_data: Dict[str, Any], candidates: List[str], exclusions: List[str], preferred_genres: List[str] = [], seed_items: List[str] = []) -> str:
     """Calls LLM to generate recommendations."""
+    # Format profile JSON into a concise string for the prompt
+    profile_text = (
+        f"PREFERRED GENRES: {', '.join(profile_data.get('preferred_genres', []))}\n"
+        f"THEMES: {', '.join(profile_data.get('themes', []))}\n"
+        f"MIN YEAR: {profile_data.get('min_year', 2005)}\n"
+        f"EXCLUSIONS: {', '.join(profile_data.get('genre_exclusions', []))}"
+    )
     candidate_list_str = "\n".join([f"- {c}" for c in candidates[:CANDIDATE_LIMIT]])
     
     exclusion_text = ""
@@ -221,13 +228,27 @@ def main(seed_items: List[str] = []) -> None:
         valid_candidates = filter_candidates(candidates_data, watched_ids, exclusions, title_blocklist, preferred_min_year)
         
         if not PROFILE_FILE.exists():
-            logger.error(f"Profile file not found: {PROFILE_FILE}")
-            return
+            # If profile doesn't exist, create a synthetic one from preferences
+            logger.info("Creating synthetic JSON profile from preferences...")
+            synthetic_profile = {
+                "preferred_genres": preferred_genres,
+                "genre_exclusions": exclusions,
+                "title_blocklist": title_blocklist,
+                "min_year": preferred_min_year,
+                "themes": [
+                    "Moral Ambiguity",
+                    "Systemic Failure", 
+                    "Cognitive Complexity",
+                    "Realism in Fantasy/Sci-Fi"
+                ]
+            }
+            with open(PROFILE_FILE, "w") as f:
+                json.dump(synthetic_profile, f, indent=2)
             
         with open(PROFILE_FILE, "r") as f:
-            profile_text = f.read()
+            profile_data = json.load(f)
 
-        recommendations = generate_recommendations(profile_text, valid_candidates, exclusions, preferred_genres, seed_items)
+        recommendations = generate_recommendations(profile_data, valid_candidates, exclusions, preferred_genres, seed_items)
         
         with open(RECOMMENDATIONS_FILE, "w") as f:
             f.write(f"# 📺 Personalized Recommendations\n\n**Source**: Trakt Trending (Filtered)\n\n")

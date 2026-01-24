@@ -1,0 +1,39 @@
+{
+  "preferred_genres": [
+    "sci-fi",
+    "fantasy",
+    "urban fantasy",
+    "dark fantasy",
+    "superhero"
+  ],
+  "genre_exclusions": [
+    "neo-western",
+    "horror",
+    "children's shows",
+    "musicals",
+    "music-based shows",
+    "Documentary",
+    "music Documentary",
+    "Sports Documentary",
+    "Period Drama",
+    "History",
+    "Sport",
+    "Sports",
+    "Musical",
+    "Pop Musical",
+    "Romance",
+    "Steamy",
+    "Steamy Romance"
+  ],
+  "title_blocklist": [
+    "Wicked",
+    "Wicked: For Good"
+  ],
+  "min_year": 2005,
+  "themes": [
+    "Moral Ambiguity",
+    "Systemic Failure",
+    "Cognitive Complexity",
+    "Realism in Fantasy/Sci-Fi"
+  ]
+}
