@@ -28,15 +28,38 @@
     "Steamy",
     "Steamy Romance"
   ],
+  "language_exclusions": [
+    "Chinese",
+    "Korean",
+    "German"
+  ],
   "title_blocklist": [
     "Wicked",
     "Wicked: For Good"
   ],
   "min_year": 2005,
+  "min_imdb_score": {
+    "tv_shows": 6.5,
+    "movies": 7.2
+  },
   "themes": [
     "Moral Ambiguity",
     "Systemic Failure",
     "Cognitive Complexity",
     "Realism in Fantasy/Sci-Fi"
-  ]
+  ],
+  "theme_details": {
+    "moral_ambiguity": "Characters in grey areas, anti-heroes",
+    "systemic_failure": "Collapse or corruption of institutions",
+    "cognitive_complexity": "High-concept plots, non-linear storytelling",
+    "realism": "Grounded approaches to extraordinary settings"
+  },
+  "strategy": {
+    "strict_filtering": true,
+    "focus_areas": [
+      "Dark Fantasy",
+      "High-Concept Sci-Fi"
+    ],
+    "era": "Modern (post-2005)"
+  }
 }
