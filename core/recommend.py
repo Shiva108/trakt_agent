@@ -166,10 +166,16 @@ USER PROFILE:
 CANDIDATE LIST ({len(candidates[:CANDIDATE_LIMIT])} items):
 {candidate_list_str}
 
-OUTPUT FORMAT (numbered list):
+CRITICAL OUTPUT INSTRUCTIONS:
+- Output ONLY a single numbered list of {NUM_RECOMMENDATIONS} items
+- Do NOT show your reasoning, validation steps, or multiple drafts
+- Do NOT include phrases like "✅", "❌", "Final list", "Corrected list", etc.
+- Format each item as: NUMBER. **Title (Year)** - Brief description
+- Start your response immediately with "1. **" and end with item {NUM_RECOMMENDATIONS}
+
+Example format:
 1. **Dune (2021)** - A visually stunning sci-fi epic with deep world-building.
 2. **Tenet (2020)** - A complex, cerebral action thriller involving time manipulation.
-[etc]
 
 Select {NUM_RECOMMENDATIONS} diverse, fresh, and high-quality matches now:"""
 
