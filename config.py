@@ -38,7 +38,7 @@ TRAKT_BASE_URL: Final[str] = "https://api.trakt.tv"
 # SERVICE CONFIGURATION
 # ==============================================================================
 # Options: "trakt", "simkl"
-SERVICE_PROVIDER: Final[str] = "simkl"
+SERVICE_PROVIDER: Final[str] = "trakt"
 
 # ==============================================================================
 # FILE PATHS (using pathlib)
@@ -89,4 +89,4 @@ SIMKL_TOKEN_FILE: Final[Path] = BASE_DIR / "simkl_token.json"
 # SERVICE CONFIGURATION
 # ==============================================================================
 # Options: "trakt", "simkl"
-SERVICE_PROVIDER: Final[str] = "simkl"
+SERVICE_PROVIDER: Final[str] = "trakt"
