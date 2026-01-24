@@ -69,7 +69,7 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 # ==============================================================================
 # PROCESSING LIMITS
 # ==============================================================================
-HISTORY_LIMIT: Final[int] = 500  # Number of watch history items to fetch
+HISTORY_LIMIT: Final[int] = 2000  # Number of watch history items to fetch (increased to reduce duplicates)
 PROFILE_ANALYSIS_LIMIT: Final[int] = 75  # Reduced from 100 for 4k context overlap optimization
 CANDIDATE_LIMIT: Final[int] = 50  # Reduced from 60 for 4k context safety
 NUM_RECOMMENDATIONS: Final[int] = 10  # Number of recommendations to generate
