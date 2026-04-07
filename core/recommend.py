@@ -75,6 +75,16 @@ def get_genres(item: Dict[str, Any]) -> List[str]:
         return item["show"].get("genres", [])
     return []
 
+def get_rating(item: Dict[str, Any]) -> Optional[float]:
+    """Extracts the Trakt community rating from an item."""
+    if "movie" in item:
+        r = item["movie"].get("rating")
+    elif "show" in item:
+        r = item["show"].get("rating")
+    else:
+        return None
+    return round(r, 1) if r else None
+
 def filter_candidates(candidates: List[Dict[str, Any]], watched_ids: Set[int], genre_exclusions: List[str] = [], title_blocklist: List[str] = [], min_year: int = 0) -> List[str]:
     """Filters candidates by watched status, excluded genres, blocked titles, and minimum year."""
     valid_candidates = []
@@ -82,38 +92,38 @@ def filter_candidates(candidates: List[Dict[str, Any]], watched_ids: Set[int], g
     filtered_genre = 0
     filtered_title = 0
     filtered_year = 0
-    
+
     # Normalize exclusions to lowercase for matching
     excluded_genres_lower = [g.lower() for g in genre_exclusions]
     blocked_titles_lower = [t.lower() for t in title_blocklist]
-    
+
     for item in candidates:
         tid = get_item_id(item)
         desc = get_title_year(item)
         genres = get_genres(item)
         genres_lower = [g.lower() for g in genres]
-        
+
         # Extract just the title for blocklist matching
         title_only = desc.split(" (")[0].lower() if " (" in desc else desc.lower()
-        
+
         # Skip watched items
         if tid and tid in watched_ids:
             filtered_watched += 1
             continue
-        
+
         # Skip items with excluded genres
         if any(excl in genres_lower for excl in excluded_genres_lower):
             filtered_genre += 1
             if filtered_genre <= 5:
                 logger.debug(f"Filtered (genre): {desc} - {genres}")
             continue
-        
+
         # Skip blocked titles
         if title_only in blocked_titles_lower:
             filtered_title += 1
             logger.debug(f"Filtered (blocklist): {desc}")
             continue
-        
+
         # Skip items older than min_year
         if min_year > 0:
             year = get_year(item)
@@ -121,14 +131,39 @@ def filter_candidates(candidates: List[Dict[str, Any]], watched_ids: Set[int], g
                 filtered_year += 1
                 logger.debug(f"Filtered (year): {desc} ({year} < {min_year})")
                 continue
-        
+
         if tid:
             valid_candidates.append(desc)
-    
+
     logger.info(f"Filtered {len(candidates)} candidates → {len(valid_candidates)} valid items")
     logger.info(f"Removed {filtered_watched} watched, {filtered_genre} by genre, {filtered_title} by blocklist, {filtered_year} by year")
-    
+
     return valid_candidates
+
+def build_ratings_map(candidates: List[Dict[str, Any]]) -> Dict[str, float]:
+    """Builds a lookup map of 'Title (Year)' -> Trakt rating from candidates."""
+    ratings: Dict[str, float] = {}
+    for item in candidates:
+        desc = get_title_year(item)
+        rating = get_rating(item)
+        if rating is not None:
+            ratings[desc] = rating
+    return ratings
+
+def inject_ratings(recommendations: str, ratings_map: Dict[str, float]) -> str:
+    """Injects Trakt ratings into LLM-generated recommendation lines."""
+    import re
+    lines = recommendations.splitlines()
+    enriched = []
+    for line in lines:
+        m = re.search(r'\*\*(.+?)\*\*', line)
+        if m:
+            title_year = m.group(1)
+            rating = ratings_map.get(title_year)
+            if rating is not None:
+                line = line.replace(f"**{title_year}**", f"**{title_year}** ⭐ {rating}", 1)
+        enriched.append(line)
+    return "\n".join(enriched)
 
 def generate_recommendations(profile_data: Dict[str, Any], candidates: List[str], exclusions: List[str], preferred_genres: List[str] = [], seed_items: List[str] = []) -> str:
     """Calls LLM to generate recommendations."""
@@ -254,8 +289,10 @@ def main(seed_items: List[str] = []) -> None:
         with open(PROFILE_FILE, "r") as f:
             profile_data = json.load(f)
 
+        ratings_map = build_ratings_map(candidates_data)
         recommendations = generate_recommendations(profile_data, valid_candidates, exclusions, preferred_genres, seed_items)
-        
+        recommendations = inject_ratings(recommendations, ratings_map)
+
         with open(RECOMMENDATIONS_FILE, "w") as f:
             f.write(f"# 📺 Personalized Recommendations\n\n**Source**: Trakt Trending (Filtered)\n\n")
             f.write(recommendations)
