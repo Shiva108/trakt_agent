@@ -186,7 +186,7 @@ def fetch_candidates() -> List[Dict[str, Any]]:
 
     # 1. Trending Movies
     # We limit to 10 detailed lookups to be polite and fast
-    url_movies = f"{SIMKL_BASE_URL}/movies/trending/week?limit=10"
+    url_movies = f"{SIMKL_BASE_URL}/movies/trending/week?limit=100"
     try:
         resp = requests.get(url_movies, headers=headers)
         if resp.status_code == 200:
@@ -212,7 +212,7 @@ def fetch_candidates() -> List[Dict[str, Any]]:
         logger.error(f"Error fetching trending movies: {e}")
 
     # 2. Trending Shows
-    url_shows = f"{SIMKL_BASE_URL}/tv/trending/week?limit=10"
+    url_shows = f"{SIMKL_BASE_URL}/tv/trending/week?limit=100"
     try:
         resp = requests.get(url_shows, headers=headers)
         if resp.status_code == 200:
